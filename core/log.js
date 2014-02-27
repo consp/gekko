@@ -13,23 +13,8 @@ var debug = require('./util').getConfig().debug;
 var logtag = require('./util').getConfig().logtag;
 var logdir = require('./util').getConfig().logdir;
 var fs = require('fs');
-var path = require('path');
+var mkdirp = require('mkdirp');
  
-fs.mkdirParent = function(dirPath, mode, callback) {
-  //Call the standard fs.mkdir
-  fs.mkdir(dirPath, mode, function(error) {
-    //When it fail in this way, do the custom steps
-    if (error && error.errno === 34) {
-      //Create all the parents recursively
-      fs.mkdirParent(path.dirname(dirPath), mode, callback);
-      //And then the directory
-      fs.mkdirParent(dirPath, mode, callback);
-    }
-    //Manually run the callback since we used our own callback to do all these
-    callback && callback(error);
-  });
-};
-
 var Log = function() {
   _.bindAll(this);
 };
@@ -65,8 +50,8 @@ Log.prototype = {
         fs.exists(logstorage, function (exists) {
             // doesn't exist, create
               if (! exists) {
-                  fs.mkdirParent(logstorage);
-                //  console.log("Creating directory: ", logstorage);
+                mkdirp(logstorage, function(error) { console.log("Failed to create log directory, might be preceding without:", error); });
+//                console.log("Creating directory: ", logstorage);
               }
         });
     }
