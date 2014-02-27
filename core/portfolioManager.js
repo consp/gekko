@@ -34,6 +34,9 @@ var Manager = function(conf) {
   this.order;
   this.action;
 
+  this.lastSell;
+  this.lastBuy;
+
   this.directExchange = exchangeMeta.direct;
   this.infinityOrderExchange = exchangeMeta.infinityOrder;
 
@@ -42,6 +45,8 @@ var Manager = function(conf) {
   });
   this.minimalOrder = this.marketConfig.minimalOrder;
 
+  this.lossAvoidant = conf.lossAvoidant;
+  this.tradePercent = conf.tradePercent;
   this.currency = conf.currency;
   this.asset = conf.asset;
 }
@@ -124,15 +129,18 @@ Manager.prototype.trade = function(what) {
   this.action = what;
 
   var act = function() {
-    var amount, price;
+    var amount, price, total_balance;
+
+    total_balance = this.getBalance(this.currency) + this.getBalance(this.asset) * this.ticker.bid;
 
     if(what === 'BUY') {
 
+
       // do we need to specify the amount we want to buy?
       if(this.infinityOrderExchange)
-        amount = 10000;
+        amount = 10;
       else
-        amount = this.getBalance(this.currency) / this.ticker.ask;
+        amount = (this.getBalance(this.currency) / this.ticker.ask);
 
       // can we just create a MKT order?
       if(this.directExchange)
@@ -140,7 +148,19 @@ Manager.prototype.trade = function(what) {
       else
         price = this.ticker.ask;
 
-      this.buy(amount, price);
+      if(this.tradePercent) {
+        log.debug('Trade Percent: adjusting amount', amount, 'by ', this.tradePercent, '%');
+        amount = amount * this.tradePercent / 100;
+      }
+
+      if(this.lossAvoidant && this.lastSell && price > this.lastSell ) {
+        log.info('We are Loss Avoidant.  Got advice to buy at ', price, 'but our last selling price was ', this.lastSell);
+        log.info('Skipping this trend.');
+      }
+      else {
+        this.buy(amount, price);
+        this.lastBuy = price.toFixed(8);
+      }
 
     } else if(what === 'SELL') {
 
@@ -155,8 +175,18 @@ Manager.prototype.trade = function(what) {
         price = false;
       else
         price = this.ticker.bid;
-      
-      this.sell(amount, price);
+
+      if(this.tradePercent) {
+        log.debug('Trade Percent: adjusting amount', amount, 'by ', this.tradePercent, '%');
+        amount = amount * this.tradePercent / 100;
+      }
+      if(this.lossAvoidant && this.lastBuy && price < this.lastBuy ) {
+        log.info('We are Loss Avoidant.  Got advice to sell at ', price, 'but our last buying price was ', this.lastBuy);
+        log.info('Skipping this trend.');
+      }
+      else {
+        this.sell(amount, price);
+      }
     }
   };
   async.series([
@@ -178,14 +208,16 @@ Manager.prototype.getMinimum = function(price) {
 // (amount is in asset quantity)
 Manager.prototype.buy = function(amount, price) {
   // sometimes cex.io specifies a price w/ > 8 decimals
-  price *= 100000000;
-  price = Math.floor(price);
-  price /= 100000000;
+//  price *= 100000000;
+//  price = Math.floor(price);
+//  price /= 100000000;
+
+  price.toFixed(8);
 
   var currency = this.getFund(this.currency);
   var minimum = this.getMinimum(price);
   var availabe = this.getBalance(this.currency) / price;
-
+  log.debug('Buying ', amount, 'with ', availabe, 'available, and a minimum of', minimum, " at ", price);
   // if not suficient funds
   if(amount > availabe) {
     return log.info(
@@ -197,24 +229,26 @@ Manager.prototype.buy = function(amount, price) {
     );
   }
 
-  // if order to small
+  // if order too small
   if(amount < minimum) {
     return log.info(
       'wanted to buy',
       this.asset,
-      'but the amount is to small',
+      'but the amount is too small',
       '(' + amount + ')',
       'at',
       this.exchange.name
     );
   }
 
-  log.info(
+  log.buy(
     'attempting to BUY',
     amount,
     this.asset,
     'at',
-    this.exchange.name
+    this.exchange.name,
+    'for',
+    price
   );
   this.exchange.buy(amount, price, this.noteOrder);
 }
@@ -224,15 +258,16 @@ Manager.prototype.buy = function(amount, price) {
 // (amount is in asset quantity)
 Manager.prototype.sell = function(amount, price) {
   // sometimes cex.io specifies a price w/ > 8 decimals
-  price *= 100000000;
-  price = Math.ceil(price);
-  price /= 100000000;
+//  price *= 100000000;
+//  price = Math.ceil(price);
+//  price /= 100000000;
 
+  price.toFixed(8);
   var minimum = this.getMinimum(price);
   var availabe = this.getBalance(this.asset);
-
+  log.debug('Selling ', amount, 'with ', availabe, 'available, and a minimum of', minimum);
   // if not suficient funds
-  if(amount < availabe) {
+  if(amount > availabe) {
     return log.info(
       'wanted to buy but insufficient',
       this.asset,
@@ -242,19 +277,19 @@ Manager.prototype.sell = function(amount, price) {
     );
   }
 
-  // if order to small
+  // if order too small
   if(amount < minimum) {
     return log.info(
       'wanted to buy',
       this.currency,
-      'but the amount is to small',
+      'but the amount is too small',
       '(' + amount + ')',
       'at',
       this.exchange.name
     );
   }
 
-  log.info(
+  log.sell(
     'attempting to SELL',
     amount,
     this.asset,
@@ -275,7 +310,7 @@ Manager.prototype.noteOrder = function(err, order) {
 // if it is not: cancel & instantiate a new order
 Manager.prototype.checkOrder = function() {
   var finish = function(err, filled) {
-    if(!filled) {
+    while(!filled) {
       log.info(this.action, 'order was not (fully) filled, cancelling and creating new order');
       this.exchange.cancelOrder(this.order);
 
