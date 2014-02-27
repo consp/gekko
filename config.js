@@ -47,7 +47,9 @@ config.watch = {
   key: '',
   secret: '',
   currency: 'BTC',
-  asset: 'DOGE'
+  asset: 'DOGE',
+  lossAvoidant: false, //  avoid loss? yes might fail sell/buy forever
+  buysellmargin: 1 // percentage to avoid. This makes sure you do not buy more than you can (problems with cryptsy)
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
