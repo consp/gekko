@@ -49,15 +49,15 @@ method.log = function() {
   var macdSignal = ppo.MACDsignal.result;
   var ppoSignal = ppo.PPOsignal.result;
 
-  log.debug('calculated MACD properties for candle:');
-  log.debug('\t', 'short:', short.toFixed(digits));
-  log.debug('\t', 'long:', long.toFixed(digits));
-  log.debug('\t', 'macd:', macd.toFixed(digits));
-  log.debug('\t', 'macdsignal:', macdSignal.toFixed(digits));
-  log.debug('\t', 'machist:', (macd - macdSignal).toFixed(digits));
-  log.debug('\t', 'ppo:', result.toFixed(digits));
-  log.debug('\t', 'pposignal:', ppoSignal.toFixed(digits));
-  log.debug('\t', 'ppohist:', (result - ppoSignal).toFixed(digits));  
+  log.methods('calculated MACD properties for candle:');
+  log.methods('\t', 'short:', short.toFixed(digits));
+  log.methods('\t', 'long:', long.toFixed(digits));
+  log.methods('\t', 'macd:', macd.toFixed(digits));
+  log.methods('\t', 'macdsignal:', macdSignal.toFixed(digits));
+  log.methods('\t', 'machist:', (macd - macdSignal).toFixed(digits));
+  log.methods('\t', 'ppo:', result.toFixed(digits));
+  log.methods('\t', 'pposignal:', ppoSignal.toFixed(digits));
+  log.methods('\t', 'ppohist:', (result - ppoSignal).toFixed(digits));  
 }
 
 method.check = function() {
@@ -88,7 +88,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In uptrend since', this.trend.duration, 'candle(s)');
+    log.methods('In uptrend since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -112,7 +112,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In downtrend since', this.trend.duration, 'candle(s)');
+    log.methods('In downtrend since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -126,7 +126,7 @@ method.check = function() {
 
   } else {
 
-    log.debug('In no trend');
+    log.methods('In no trend');
 
     // we're not in an up nor in a downtrend
     // but for now we ignore sideways trends

@@ -10,8 +10,25 @@ var moment = require('moment');
 var fmt = require('util').format;
 var _ = require('lodash');
 var debug = require('./util').getConfig().debug;
+var logtag = require('./util').getConfig().logtag;
+var logdir = require('./util').getConfig().logdir;
 var fs = require('fs');
-
+var path = require('path');
+ 
+fs.mkdirParent = function(dirPath, mode, callback) {
+  //Call the standard fs.mkdir
+  fs.mkdir(dirPath, mode, function(error) {
+    //When it fail in this way, do the custom steps
+    if (error && error.errno === 34) {
+      //Create all the parents recursively
+      fs.mkdirParent(path.dirname(dirPath), mode, callback);
+      //And then the directory
+      fs.mkdirParent(dirPath, mode, callback);
+    }
+    //Manually run the callback since we used our own callback to do all these
+    callback && callback(error);
+  });
+};
 
 var Log = function() {
   _.bindAll(this);
@@ -28,10 +45,32 @@ Log.prototype = {
 
     if (method == 'buy' || method == 'sell'){
         console['info'](message);
+    } else if (method == 'methods') {
+        console['info'](message);
     } else {
         console[method](message);
     }
-    fs.appendFile('log/' + name.toLowerCase() + '.log', moment().format('YYYY-MM-DD HH:mm:ss') + ": " + fmt.apply(null,args) + "\n", function (err) {
+    var logname = logtag;
+    var logstorage = 'log/';
+    // Add the logtag if not empty
+    if (logtag != '')
+        logname = logtag.toLowerCase() + '-';
+
+    if (logdir != '') {
+        // check and append trailing /
+        if (logdir.slice(-1) != '/')
+            logstorage = logstorage + logdir + '/';
+        
+        // stat and create each recurring dir
+        fs.exists(logstorage, function (exists) {
+            // doesn't exist, create
+              if (! exists) {
+                  fs.mkdirParent(logstorage);
+                //  console.log("Creating directory: ", logstorage);
+              }
+        });
+    }
+    fs.appendFile(logstorage + logname + name.toLowerCase() + '.log', moment().format('YYYY-MM-DD HH:mm:ss') + ": " + fmt.apply(null,args) + "\n", function (err) {
     });
   },
   error: function() {
@@ -48,6 +87,9 @@ Log.prototype = {
   },
   sell: function() {
       this._write('sell', arguments);
+  },
+  methods: function() {
+      this._write('methods', arguments);
   }
 }
 

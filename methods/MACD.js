@@ -54,12 +54,12 @@ method.log = function() {
   var diff = macd.diff;
   var signal = macd.signal.result;
 
-  log.debug('calculated MACD properties for candle:');
-  log.debug('\t', 'short:', macd.short.result.toFixed(digits));
-  log.debug('\t', 'long:', macd.long.result.toFixed(digits));
-  log.debug('\t', 'macd:', diff.toFixed(digits));
-  log.debug('\t', 'signal:', signal.toFixed(digits));
-  log.debug('\t', 'macdiff:', macd.result.toFixed(digits));  
+  log.methods('calculated MACD properties for candle:');
+  log.methods('\t', 'short:', macd.short.result.toFixed(digits));
+  log.methods('\t', 'long:', macd.long.result.toFixed(digits));
+  log.methods('\t', 'macd:', diff.toFixed(digits));
+  log.methods('\t', 'signal:', signal.toFixed(digits));
+  log.methods('\t', 'macdiff:', macd.result.toFixed(digits));  
 }
 
 method.check = function() {
@@ -85,7 +85,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In uptrend since', this.trend.duration, 'candle(s)');
+    log.methods('In uptrend since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -110,7 +110,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In downtrend since', this.trend.duration, 'candle(s)');
+    log.methods('In downtrend since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -123,7 +123,7 @@ method.check = function() {
 
   } else {
 
-    log.debug('In no trend');
+    log.methods('In no trend');
 
     // we're not in an up nor in a downtrend
     // but for now we ignore sideways trends
