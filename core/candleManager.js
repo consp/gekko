@@ -61,7 +61,7 @@ var async = require('async');
 
 var util = require('./util');
 var config = util.getConfig();
-// var backtest = config.backtest;
+var backtest = config.backtest;
 var tradingAdvisor = config.tradingAdvisor;
 
 var equals = util.equals;
@@ -76,15 +76,17 @@ var Manager = function() {
   this.historyPath = config.history.directory || './history/';
   this.days = {};
 
+  this.gapPercent = config.history.gapPercent / 100;
+
   // This is vital state, think out all scenarios
   // of what this could be, based on:
   //  - partial history
   //  - full history
   //  - fetch start
   //  - backtest enabled
-  // if(backtest.enabled)
-  //   this.startTime = moment(backtest.from).utc()
-  // else
+  if(backtest.enabled)
+    this.startTime = moment(backtest.from).utc()
+   else
     this.startTime = utc();
 
   // set the start current day
@@ -333,15 +335,20 @@ Manager.prototype.checkDaysMeta = function(err, results) {
     if(isFirstDay && day.startCandle.s !== 0)
       return false;
 
-    // if not current day, it needs to be full
-    if(!isFirstDay && !day.full)
+    // if not current day, it needs to have less gaps than we allow
+    if( !isFirstDay && this.gapPercent > 0 ) {
+      var percent =  ( MINUTES_IN_DAY - day.minutes ) / MINUTES_IN_DAY ;
+      log.debug('Allowing For Gaps', day.string, 'with ', day.minutes, 'is ', percent * 100, 'gaps');
+      if ( percent > this.gapPercent )
+        return false;
+    } else if( !isFirstDay && !day.full )
       return false;
 
     // this day is approved, up to next day
     return true;
 
   }, this);
-
+  //log.debug('History calculated: we have ', available.minutes, 'minutes of history');
   this.history.available = available;
 }
 
@@ -369,6 +376,8 @@ Manager.prototype.processHistoryStats = function() {
 
   // how many more minutes do we need?
   history.toFetch = history.timespan - history.available.minutes;
+  log.debug('History spans', history.timespan, 'and we have', history.available.minutes, 'minutes');
+  log.debug('We need to Fetch', history.toFetch, 'minutes');
 
   if(!history.toFetch < 1) {
     // we have appear to have full history
@@ -429,12 +438,20 @@ Manager.prototype.checkHistoryAge = function(data) {
 
   this.minumum = history.available.last.m.clone().add('m', 1);
 
-  if(this.minumum > this.fetch.start.m)
+  // numbers in milliseconds 
+  var gap = this.fetch.start.m.diff(this.minumum, 'seconds' );
+
+  if( gap <= 0 )
     // we're all good, process normally
     return;
+  else {
+    var gapAllowed = MINUTES_IN_DAY * this.gapPercent;
+    var gapMinutes = gap / 60; 
+    log.debug('We ran in to a gap of:', gapMinutes, 'minutes, (', gapMinutes / MINUTES_IN_DAY, '%), minimum is', gapAllowed );
+  }
 
   // there is a gap, mark current day as corrupted and process
-  log.warn('The history we found is to old, we have to build a new one');
+  log.warn('The history we found is too old, we have to build a new one');
 
   this.deleteDay(this.days[this.current.dayString], true);
 
@@ -793,6 +810,7 @@ Manager.prototype.addEmtpyCandles = function(candles, start, end) {
 
     if(min > max) {
       console.log('c', candles, 's', start, 'e', end);
+      console.log('min', min, 'max', max);
       throw 'Weird error 2';
     }
 

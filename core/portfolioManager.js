@@ -331,7 +331,7 @@ Manager.prototype.checkOrder = function() {
 Manager.prototype.logPortfolio = function() {
   log.info(this.exchange.name, 'portfolio:');
   _.each(this.portfolio, function(fund) {
-    log.info('\t', fund.name + ':', fund.amount);
+    log.info('\t', fund.name + ':', fund.amount.toFixed(8));
   });
 }
 

@@ -185,18 +185,45 @@ var exchanges = [
     providesHistory: false
   },
   {
+    name: 'Cryptsy',
+    slug: 'cryptsy',
+    direct: false,
+    infinityOrder: false,
+    currencies: ['BTC', 'LTC'],
+    assets: ['DOGE', 'DVC', 'PPC' ],
+    markets: [
+      {
+        pair: ['BTC', 'DOGE'], market_id: 132, minimalOrder: { amount: 100, unit: 'asset' }
+      },
+      {
+        pair: ['LTC', 'DOGE'], minimalOrder: { amount: 1, unit: 'asset' }
+      },
+      {
+        pair: ['BTC', 'DVC'], minimalOrder: { amount: 100, unit: 'asset' }
+      }
+    ],
+    requires: ['key', 'secret'],
+    providesHistory: false
+  },
+  {
     name: 'Kraken',
     slug: 'kraken',
     direct: false,
     infinityOrder: false,
-    currencies: ['XRP', 'EUR', 'KRW', 'USD', 'LTC', 'XVN'],
-    assets: ['LTC', 'NMC', 'XBT', 'XVN', 'EUR', 'KRW', 'USD'],
+    currencies: [ 'XRP', 'EUR', 'KRW', 'USD', 'LTC', 'XVN', 'XDG', 'XBT' ],
+    assets: ['LTC', 'NMC', 'XBT', 'XVN', 'EUR', 'KRW', 'USD', 'XDG' ],
     markets: [
       {
         pair: ['XRP', 'LTC'], minimalOrder: { amount: 0.01, unit: 'currency' }
       },
       {
         pair: ['EUR', 'LTC'], minimalOrder: { amount: 0.01, unit: 'currency' }
+      },
+      {
+        pair: ['XDG', 'XBT'], minimalOrder: { amount: 0.01, unit: 'currency' }
+      },
+      {
+        pair: ['XBT', 'XDG'], minimalOrder: { amount: 0.01, unit: 'currency' }
       },
       {
         pair: ['KRW', 'LTC'], minimalOrder: { amount: 0.01, unit: 'currency' }
@@ -257,7 +284,6 @@ var exchanges = [
       }
     ],
     requires: ['key', 'secret'],
-    monitorError: 'https://github.com/askmike/gekko/issues/210',
     providesHistory: false
   }
 ];

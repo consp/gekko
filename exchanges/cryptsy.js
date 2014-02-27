@@ -44,7 +44,7 @@ Trader.prototype.return_trades = function(market, callback) {
   // log.debug('client is ', client);
   try { 
     client.getmarketid(market, function(market_id) {
-        // log.debug('id is', market_id);
+        //log.debug('id is', market_id);
         // Display user's trades in that market
         client.markettrades(market_id, function(trades) {
             if (!trades || trades.length === 0)
@@ -105,7 +105,7 @@ Trader.prototype.get_bid_ask = function(market, callback) {
             trades.forEach( function(trade) {
               // convert to int
               if(trade.initiate_ordertype.toLowerCase() == 'sell') {
-                //log.sell("Sell with initiate_ordertype", trade.initiate_ordertype, 'so using the price as the ask');
+                //log.debug("Sell with initiate_ordertype", trade.initiate_ordertype, 'so using the price as the ask');
                 data_output.bid = Number(trade.tradeprice);
               } else {
                 //log.debug("Buy with initiate_ordertype", trade.initiate_ordertype, 'so using the price as the bid');
@@ -188,7 +188,6 @@ Trader.prototype.place_order = function(market_name, trans_type, amount, price, 
 
 
   var client = this.cryptsy;
-  var co = this.checkOrder;
   //log.debug(trans_type, 'order placed for ', amount, this.asset, ' @', price, this.currency);
   try {
     //log.debug('client is ', client);
@@ -196,7 +195,7 @@ Trader.prototype.place_order = function(market_name, trans_type, amount, price, 
         //log.debug('id is', market_id);
         // check after order to see if fullfilled, otherwise. keep trying for n minutes?
         client.createorder(market_id, trans_type, amount, price, function(orderid) {
-            callback(null, orderid);
+              callback(null, orderid);
         });
     });
   }
@@ -244,7 +243,6 @@ Trader.prototype.getPortfolio = function(callback) {
       return this.retry(this.getPortfolio, args, null);
     balances = data.balances_available;
     holds = data.balances_hold; 
-    // log.debug(balances);
     curr_balance = parseFloat(balances[curr])
     asst_balance = parseFloat(balances[asst]);
 

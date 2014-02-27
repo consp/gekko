@@ -19,8 +19,8 @@ var method = {};
 
 // prepare everything our method needs
 method.init = function() {
-  this.trend = {
-   direction: 'none',
+ this.trend = {
+   direction: 'undefined',
    duration: 0,
    persisted: false,
    adviced: false
@@ -49,7 +49,8 @@ method.log = function() {
   var macdSignal = ppo.MACDsignal.result;
   var ppoSignal = ppo.PPOsignal.result;
 
-  log.debug('calculated MACD properties for candle:');
+
+  log.debug('calculated PPO properties for candle:');
   log.debug('\t', 'short:', short.toFixed(digits));
   log.debug('\t', 'long:', long.toFixed(digits));
   log.debug('\t', 'macd:', macd.toFixed(digits));
@@ -58,6 +59,8 @@ method.log = function() {
   log.debug('\t', 'ppo:', result.toFixed(digits));
   log.debug('\t', 'pposignal:', ppoSignal.toFixed(digits));
   log.debug('\t', 'ppohist:', (result - ppoSignal).toFixed(digits));  
+  log.debug('\t', 'Up Threshold:', settings.thresholds.up);
+  log.debug('\t', 'Down Threshold:', settings.thresholds.down);  
 }
 
 method.check = function() {
@@ -75,8 +78,16 @@ method.check = function() {
   // if it is it should move there
   var ppoHist = ppo - ppoSignal;
 
-  if(ppoHist > settings.thresholds.up) {
-
+  
+  if (!settings.tradeOnStart && this.trend.direction === 'undefined' ) {
+    // We just started the program and we don't have a trend, so set it and wait until next time.
+    if (ppoHist > settings.thresholds.up)
+      this.trend.direction = 'up';
+    else
+      this.trend.direction = 'down';
+    log.debug("Trade On Start Disabled and No Direction Defined. Setting direction to", this.trend.direction);
+    this.advice(); 
+  } else if(ppoHist > settings.thresholds.up) {
     // new trend detected
     if(this.trend.direction !== 'up')
       this.trend = {
@@ -100,7 +111,6 @@ method.check = function() {
       this.advice();
     
   } else if(ppoHist < settings.thresholds.down) {
-
     // new trend detected
     if(this.trend.direction !== 'down')
       this.trend = {
@@ -134,13 +144,15 @@ method.check = function() {
     // read more @link:
     // 
     // https://github.com/askmike/gekko/issues/171
-
-    // this.trend = {
-    //   direction: 'none',
-    //   duration: 0,
-    //   persisted: false,
-    //   adviced: false
-    // };
+    if ( settings.tradeAfterFlat ) {
+      log.debug("We want to Trade After Flat - setting trend to none");
+      this.trend = {
+         direction: 'none',
+         duration: 0,
+         persisted: false,
+         adviced: false
+      };
+    }
 
     this.advice();
   }

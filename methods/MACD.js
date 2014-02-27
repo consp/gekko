@@ -25,7 +25,7 @@ method.init = function() {
   // state object to check if we need to
   // report it.
   this.trend = {
-    direction: 'none',
+    direction: 'undefined',
     duration: 0,
     persisted: false,
     adviced: false
@@ -71,7 +71,16 @@ method.check = function() {
   var signal = macd.signal.result;
   var macddiff = macd.result;
 
-  if(macddiff > settings.thresholds.up) {
+
+  if (!settings.tradeOnStart && this.trend.direction === 'undefined' ) {
+    // We just started the program and we don't have a trend, so set it and wait until next time.
+    log.debug("Trade On Start Disabled and No Direction Defined.");    
+    if (macddiff > settings.thresholds.up)
+      this.trend.direction = 'up';
+    else
+      this.trend.direction = 'down';
+    this.advice(); 
+  } else if(macddiff > settings.thresholds.up) {
 
     // new trend detected
     if(this.trend.direction !== 'up')
@@ -131,13 +140,15 @@ method.check = function() {
     // read more @link:
     // 
     // https://github.com/askmike/gekko/issues/171
-
-    // this.trend = {
-    //   direction: 'none',
-    //   duration: 0,
-    //   persisted: false,
-    //   adviced: false
-    // };
+    if ( settings.tradeAfterFlat ) {
+      log.debug("We want to Trade After Flat - setting trend to none");
+      this.trend = {
+         direction: 'none',
+         duration: 0,
+         persisted: false,
+         adviced: false
+      };
+    }
 
     this.advice();
   }

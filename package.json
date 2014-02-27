@@ -13,6 +13,7 @@
   "author": "Mike van Rossum <mike@mvr.me>",
   "dependencies": {
     "mtgox-apiv2": "1.1.x",
+   "cryptsy-api":  "git://github.com/mlmurray/npm-cryptsy-api.git#master", 
     "lodash": "2.x",
     "moment": "2.4.x",
     "btc-e": "0.0.x",
