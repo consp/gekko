@@ -49,8 +49,7 @@ method.log = function() {
   var macdSignal = ppo.MACDsignal.result;
   var ppoSignal = ppo.PPOsignal.result;
 
-
-  log.methods('calculated PPO properties for candle:');
+  log.methods('calculated MACD properties for candle:');
   log.methods('\t', 'short:', short.toFixed(digits));
   log.methods('\t', 'long:', long.toFixed(digits));
   log.methods('\t', 'macd:', macd.toFixed(digits));

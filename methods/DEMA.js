@@ -58,7 +58,6 @@ method.check = function() {
 
   var message = '@ ' + price.toFixed(8) + ' (' + diff.toFixed(5) + ')';
 
-
   if (!settings.tradeOnStart && this.trend.direction === 'undefined' ) {
     // We just started the program and we don't have a trend, so set it and wait until next time.
     log.methods("Trade On Start Disabled and No Direction Defined.");    
@@ -137,6 +136,7 @@ method.check = function() {
 
     }
 
+    log.methods('we are currently not in an up or down trend', message);
     this.advice();
   }
 }
