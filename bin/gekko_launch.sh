@@ -1,5 +1,4 @@
 #navigate to gekko folder, change this if your location is different
-cd /home/ec2-user/gekko
 
 # zip previous log files for this config
 now="`date +%Y%m%d%H%M%S`"
@@ -16,6 +15,6 @@ fi
 
 # finally launch gekko and log output to log file as well as stdout
 while [ TRUE ]; do
-	node gekko config="/home/ec2-user/gekko/gekko-conf-$1.js" 2>&1 | tee -a $current_log
+	nodejs gekko config="conf-$1.js" 2>&1 | tee -a $current_log
 	echo "Crash - Gekko CRASH" >> $current_log
 done
