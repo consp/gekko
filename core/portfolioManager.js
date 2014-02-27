@@ -49,6 +49,7 @@ var Manager = function(conf) {
   this.tradePercent = conf.tradePercent;
   this.currency = conf.currency;
   this.asset = conf.asset;
+  this.buysellmargin = conf.buysellmargin;
 }
 
 Manager.prototype.init = function(callback) {
@@ -139,8 +140,13 @@ Manager.prototype.trade = function(what) {
       // do we need to specify the amount we want to buy?
       if(this.infinityOrderExchange)
         amount = 10;
-      else
-        amount = (this.getBalance(this.currency) / this.ticker.ask);
+      else {
+        if (this.buysellmargin > 0) {
+            amount = (this.getBalance(this.currency) / this.ticker.ask) * (1.0 - (this.buysellmargin / 100));
+        } else {
+            amount = (this.getBalance(this.currency) / this.ticker.ask);
+        }
+      }
 
       // can we just create a MKT order?
       if(this.directExchange)
@@ -173,8 +179,13 @@ Manager.prototype.trade = function(what) {
       // can we just create a MKT order?
       if(this.directExchange)
         price = false;
-      else
-        price = this.ticker.bid;
+      else {
+        if (this.buysellmargin > 0) {
+            price = this.ticker.bid * (1.0 + (this.buysellmargin / 100));
+        } else {
+            price = this.ticker.bid;
+        }
+      }
 
       if(this.tradePercent) {
         log.debug('Trade Percent: adjusting amount', amount, 'by ', this.tradePercent, '%');
