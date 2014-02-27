@@ -199,7 +199,7 @@ var exchanges = [
           pair: ['LTC', 'DOGE']  ,minimalOrder: { amount: 1, unit: 'asset' }
       },
       {
-          pair: ['BTC', 'LTC'], minimalOrder: { amount: 1, unit: 'asset' }
+          pair: ['BTC', 'LTC'], minimalOrder: { amount: 0.01, unit: 'asset' }
       },
       {
           pair: ['BTC', 'EAC'], minimalOrder: { amount: 100, unit: 'asset' }
