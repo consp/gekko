@@ -106,10 +106,10 @@ Trader.prototype.get_bid_ask = function(market, callback) {
               // convert to int
               if(trade.initiate_ordertype.toLowerCase() == 'sell') {
                 //log.debug("Sell with initiate_ordertype", trade.initiate_ordertype, 'so using the price as the ask');
-                data_output.bid = Number(trade.tradeprice);
+                data_output.ask = Number(trade.tradeprice);
               } else {
                 //log.debug("Buy with initiate_ordertype", trade.initiate_ordertype, 'so using the price as the bid');
-                data_output.ask = Number(trade.tradeprice);
+                data_output.bid = Number(trade.tradeprice);
               }
               data_output.datetime = trade.datetime;
             });
@@ -161,7 +161,9 @@ Trader.prototype.buy = function(amount, price, callback) {
   var mkt_name = this.market;
   // [MM]: Something about cryptsy's orders seems to be behind the actual market, which causes orders to go unfilled.  
   // Make the amount slightly on the upside of the actual price.
-  price = price + 0.00000001;
+  if (price > 0.00000500) {
+      price = price + 0.00000001;
+  }
 
   log.buy('BUY', amount, this.asset, ' @', price, this.currency);
   this.place_order(mkt_name, 'buy', amount, price, _.bind(callback, this));
@@ -174,7 +176,9 @@ Trader.prototype.sell = function(amount, price, callback) {
   // [MM]: Something about cryptsy's orders seems to be behind the actual market, which causes orders to go unfilled.  
   // Make the amount slightly on the downside of the actual price.
   // selling at second highes bid?
-  price = price - 0.00000001; // minus minest?
+  if (price > 0.00000500) { 
+    price = price - 0.00000001; // minus minest?
+  }
 
   log.sell('SELL', amount, this.asset, ' @', price, this.currency);
   this.place_order(mkt_name, 'sell', amount, price, _.bind(callback, this));
