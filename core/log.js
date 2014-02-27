@@ -10,6 +10,7 @@ var moment = require('moment');
 var fmt = require('util').format;
 var _ = require('lodash');
 var debug = require('./util').getConfig().debug;
+var logtag = require('./util').getConfig().logtag;
 var fs = require('fs');
 
 
@@ -33,7 +34,7 @@ Log.prototype = {
     } else {
         console[method](message);
     }
-    fs.appendFile('log/' + name.toLowerCase() + '.log', moment().format('YYYY-MM-DD HH:mm:ss') + ": " + fmt.apply(null,args) + "\n", function (err) {
+    fs.appendFile('log/' + logtag.toLowerCase() + '-' + name.toLowerCase() + '.log', moment().format('YYYY-MM-DD HH:mm:ss') + ": " + fmt.apply(null,args) + "\n", function (err) {
     });
   },
   error: function() {
