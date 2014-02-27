@@ -10,7 +10,8 @@
 *~
 *.sass-cache
 gekko-conf*
-
+conf-*
+config.js
 
 # OS or Editor folders
 .DS_Store
@@ -42,4 +43,3 @@ candles.csv
 cexio.db
 cryptsy.db
 history
-config.js
