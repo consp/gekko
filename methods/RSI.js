@@ -38,9 +38,9 @@ method.log = function() {
   var digits = 8;
   var rsi = this.indicators.rsi;
 
-  log.debug('calculated RSI properties for candle:');
-  log.debug('\t', 'rsi:', rsi.rsi.toFixed(digits));
-  log.debug('\t', 'price:', this.lastPrice.toFixed(digits));
+  log.methods('calculated RSI properties for candle:');
+  log.methods('\t', 'rsi:', rsi.rsi.toFixed(digits));
+  log.methods('\t', 'price:', this.lastPrice.toFixed(digits));
 }
 
 method.check = function() {
@@ -60,7 +60,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In high since', this.trend.duration, 'candle(s)');
+    log.methods('In high since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -84,7 +84,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In low since', this.trend.duration, 'candle(s)');
+    log.methods('In low since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -97,7 +97,7 @@ method.check = function() {
 
   } else {
 
-    log.debug('In no trend');
+    log.methods('In no trend');
 
     this.advice();
   }

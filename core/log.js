@@ -28,6 +28,8 @@ Log.prototype = {
 
     if (method == 'buy' || method == 'sell'){
         console['info'](message);
+    } else if (method == 'methods') {
+        console['debug'](message);
     } else {
         console[method](message);
     }
@@ -48,6 +50,9 @@ Log.prototype = {
   },
   sell: function() {
       this._write('sell', arguments);
+  },
+  methods: function() {
+      this._write('methods', arguments);
   }
 }
 

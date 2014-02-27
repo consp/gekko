@@ -50,17 +50,17 @@ method.log = function() {
   var ppoSignal = ppo.PPOsignal.result;
 
 
-  log.debug('calculated PPO properties for candle:');
-  log.debug('\t', 'short:', short.toFixed(digits));
-  log.debug('\t', 'long:', long.toFixed(digits));
-  log.debug('\t', 'macd:', macd.toFixed(digits));
-  log.debug('\t', 'macdsignal:', macdSignal.toFixed(digits));
-  log.debug('\t', 'machist:', (macd - macdSignal).toFixed(digits));
-  log.debug('\t', 'ppo:', result.toFixed(digits));
-  log.debug('\t', 'pposignal:', ppoSignal.toFixed(digits));
-  log.debug('\t', 'ppohist:', (result - ppoSignal).toFixed(digits));  
-  log.debug('\t', 'Up Threshold:', settings.thresholds.up);
-  log.debug('\t', 'Down Threshold:', settings.thresholds.down);  
+  log.methods('calculated PPO properties for candle:');
+  log.methods('\t', 'short:', short.toFixed(digits));
+  log.methods('\t', 'long:', long.toFixed(digits));
+  log.methods('\t', 'macd:', macd.toFixed(digits));
+  log.methods('\t', 'macdsignal:', macdSignal.toFixed(digits));
+  log.methods('\t', 'machist:', (macd - macdSignal).toFixed(digits));
+  log.methods('\t', 'ppo:', result.toFixed(digits));
+  log.methods('\t', 'pposignal:', ppoSignal.toFixed(digits));
+  log.methods('\t', 'ppohist:', (result - ppoSignal).toFixed(digits));  
+  log.methods('\t', 'Up Threshold:', settings.thresholds.up);
+  log.methods('\t', 'Down Threshold:', settings.thresholds.down);  
 }
 
 method.check = function() {
@@ -85,7 +85,7 @@ method.check = function() {
       this.trend.direction = 'up';
     else
       this.trend.direction = 'down';
-    log.debug("Trade On Start Disabled and No Direction Defined. Setting direction to", this.trend.direction);
+    log.methods("Trade On Start Disabled and No Direction Defined. Setting direction to", this.trend.direction);
     this.advice(); 
   } else if(ppoHist > settings.thresholds.up) {
     // new trend detected
@@ -99,7 +99,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In uptrend since', this.trend.duration, 'candle(s)');
+    log.methods('In uptrend since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -122,7 +122,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In downtrend since', this.trend.duration, 'candle(s)');
+    log.methods('In downtrend since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -136,7 +136,7 @@ method.check = function() {
 
   } else {
 
-    log.debug('In no trend');
+    log.methods('In no trend');
 
     // we're not in an up nor in a downtrend
     // but for now we ignore sideways trends
@@ -145,7 +145,7 @@ method.check = function() {
     // 
     // https://github.com/askmike/gekko/issues/171
     if ( settings.tradeAfterFlat ) {
-      log.debug("We want to Trade After Flat - setting trend to none");
+      log.methods("We want to Trade After Flat - setting trend to none");
       this.trend = {
          direction: 'none',
          duration: 0,

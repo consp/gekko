@@ -43,11 +43,11 @@ method.update = function(candle) {
 method.log = function() {
   var dema = this.indicators.dema;
 
-  log.debug('calculated DEMA properties for candle:');
-  log.debug('\t', 'long ema:', dema.long.result.toFixed(8));
-  log.debug('\t', 'short ema:', dema.short.result.toFixed(8));
-  log.debug('\t diff:', dema.result.toFixed(5));
-  log.debug('\t DEMA age:', dema.short.age, 'candles');
+  log.methods('calculated DEMA properties for candle:');
+  log.methods('\t', 'long ema:', dema.long.result.toFixed(8));
+  log.methods('\t', 'short ema:', dema.short.result.toFixed(8));
+  log.methods('\t diff:', dema.result.toFixed(5));
+  log.methods('\t DEMA age:', dema.short.age, 'candles');
 }
 
 method.check = function() {
@@ -61,7 +61,7 @@ method.check = function() {
 
   if (!settings.tradeOnStart && this.trend.direction === 'undefined' ) {
     // We just started the program and we don't have a trend, so set it and wait until next time.
-    log.debug("Trade On Start Disabled and No Direction Defined.");    
+    log.methods("Trade On Start Disabled and No Direction Defined.");    
     if (diff > settings.thresholds.up)
       this.trend.direction = 'up';
     else
@@ -80,7 +80,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In uptrend since', this.trend.duration, 'candle(s)');
+    log.methods('In uptrend since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -104,7 +104,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In downtrend since', this.trend.duration, 'candle(s)');
+    log.methods('In downtrend since', this.trend.duration, 'candle(s)');
 
     if(this.trend.duration >= settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -118,7 +118,7 @@ method.check = function() {
 
   } else {
 
-    log.debug('In no trend');
+    log.methods('In no trend');
 
     // we're not in an up nor in a downtrend
     // but for now we ignore sideways trends
@@ -127,7 +127,7 @@ method.check = function() {
     // 
     // https://github.com/askmike/gekko/issues/171
     if ( settings.tradeAfterFlat ) {
-      log.debug("We want to Trade After Flat - setting trend to none");
+      log.methods("We want to Trade After Flat - setting trend to none");
       this.trend = {
          direction: 'none',
          duration: 0,
