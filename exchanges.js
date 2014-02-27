@@ -190,16 +190,25 @@ var exchanges = [
     direct: false,
     infinityOrder: false,
     currencies: ['BTC', 'LTC'],
-    assets: ['DOGE', 'DVC', 'PPC' ],
+    assets: ['DOGE', 'DVC', 'PPC', 'LTC' ],
     markets: [
       {
         pair: ['BTC', 'DOGE'], market_id: 132, minimalOrder: { amount: 100, unit: 'asset' }
       },
       {
-        pair: ['LTC', 'DOGE'], minimalOrder: { amount: 1, unit: 'asset' }
+          pair: ['LTC', 'DOGE']  ,minimalOrder: { amount: 1, unit: 'asset' }
       },
       {
-        pair: ['BTC', 'DVC'], minimalOrder: { amount: 100, unit: 'asset' }
+          pair: ['BTC', 'LTC'], minimalOrder: { amount: 100, unit: 'asset' }
+      },
+      {
+          pair: ['BTC', 'EAC'], minimalOrder: { amount: 100, unit: 'asset' }
+      },
+      {
+          pair: ['BTC', 'PPC'], minimalOrder: { amount: 1, unit: 'asset' }
+      },
+      {
+          pair: ['BTC', 'DVC'], minimalOrder: { amount: 100, unit: 'asset' }
       }
     ],
     requires: ['key', 'secret'],
