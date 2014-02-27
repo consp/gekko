@@ -29,7 +29,7 @@ Log.prototype = {
     if (method == 'buy' || method == 'sell'){
         console['info'](message);
     } else if (method == 'methods') {
-        console['debug'](message);
+        console['info'](message);
     } else {
         console[method](message);
     }
