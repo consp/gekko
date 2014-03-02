@@ -3,26 +3,15 @@
 
 var config = {};
 
-// This is the preceding tag with which all logfiles are stored:
-// E.g: btc-info.log or btc-warning.log. This is always lower case.
-// The following logfiles will be written in log/
-//
-// [logtag]-warning.log     -> Contains warnings
-// [logtag]-info.log        -> Contains info (normal)
-// [logtag]-debug.log       -> Contains all debug messages if debug is enabled
-// [logtag]-sell.log        -> Contains sell orders (completed and failed)
-// [logtag]-buy.log         -> Contains buy orders (completed and failed)
-// [logtag]-methods.log     -> Contains messages by methods (e.g. DEMA info)
-//
-// You can also use a function, like the date function shown below:
-// The simpelest is the following:
-// config.logtag = 'btc';
-// config.logdir = '';
-config.logdir = 'btc/' + (function() {
-    return require('moment')().format('YYYY-MM-DD');
-})();
 
-config.logtag = ''
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                          LOGGER SETTINGS
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+config.logdir = 'btc/';
+config.logdate = true;
+//config.logtag = 'test01';
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                          GENERAL SETTINGS
