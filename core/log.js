@@ -6,25 +6,42 @@
 
 */
 
+var async = require('async');
+// create single task queue (e.g. in order)
+var queue = async.queue(function (task, callback) {
+        task();
+        callback();
+}, 1);
 var moment = require('moment');
 var fmt = require('util').format;
 var _ = require('lodash');
 var debug = require('./util').getConfig().debug;
-var logtag = require('./util').getConfig().logtag;
-var logdir = require('./util').getConfig().logdir;
+
 var fs = require('fs');
 var mkdirp = require('mkdirp');
+var logtag = undefined;
+var logdir = undefined;
+var logdate = undefined;
+var olddir = '';
  
 var Log = function() {
-  _.bindAll(this);
+  _.bindAll(this)
 };
+
 
 Log.prototype = {
   _write: function(method, args, name) {
     if(!name)
       name = method.toUpperCase();
 
+    if (typeof(logtag) === 'undefined' || typeof(logdir) === 'undefined' || typeof(logdate) === 'undefined') {
+        this.loadConfig();
+    }
+
+
     var message = moment().format('YYYY-MM-DD HH:mm:ss');
+    var dirdate = moment().format('YYYY-MM-DD');
+
     message += ' (' + name + '):\t';
     message += fmt.apply(null, args);
 
@@ -42,21 +59,73 @@ Log.prototype = {
         logname = logtag.toLowerCase() + '-';
 
     if (logdir != '') {
+
+        logstorage = logstorage + logdir;
         // check and append trailing /
         if (logdir.slice(-1) != '/')
-            logstorage = logstorage + logdir + '/';
-        
-        // stat and create each recurring dir
-        fs.exists(logstorage, function (exists) {
-            // doesn't exist, create
-              if (! exists) {
-                mkdirp(logstorage, function(error) { console.log("Failed to create log directory, might be preceding without:", error); });
-//                console.log("Creating directory: ", logstorage);
-              }
-        });
+            logstorage += '/';
     }
-    fs.appendFile(logstorage + logname + name.toLowerCase() + '.log', moment().format('YYYY-MM-DD HH:mm:ss') + ": " + fmt.apply(null,args) + "\n", function (err) {
-    });
+
+    if (logdate) {
+        logstorage += dirdate + '/';
+    }
+    
+    
+    var logfile = logstorage + logname + name.toLowerCase() + '.log';
+    
+    // string compare (might differ in node versions use >= 10), cheaper than synchronized io
+    if (logstorage != olddir) {
+        olddir = logstorage;
+        message += "\nLOG: Checking if log directory exists.";
+        queue.push(function () {
+                    
+            // stat and create each recurring dir
+            // need sync? probably ...
+            if (! fs.existsSync(logstorage)) {
+                // doesn't exist, create
+                message += "\nCreate directory to log to: " + logstorage;
+                mkdirp.sync(logstorage);
+            }
+        }, function() {});
+    }
+
+    // store directory to check later.
+    olddir = logstorage;
+
+    queue.push(function() {
+                fs.appendFile(logfile, moment().format('YYYY-MM-DD HH:mm:ss') + ": " + fmt.apply(null,args) + "\n",
+                    function( error) {
+                        if (error)console.log('Failed to log.');
+                                            });
+            }, 
+            function() {});
+  },
+  loadConfig: function() {
+       logtag = require('./util').getConfig().logtag;
+       if (typeof(logtag) === 'undefined') {
+           console.log("LOG: Not using any logtag.");
+           logtag = '';
+       } else {
+           console.log("LOG: Setting logtag: ", logtag);
+       }
+       
+       logdir = require('./util').getConfig().logdir;
+       if (typeof(logdir) === 'undefined') {
+           if (logtag === 'undefined') {
+               console.log("Failed to set either logdir or logtag, please enter one or both.");
+               // exit? or in config?
+           }
+           logdir = '';
+       } else {
+           console.log("LOG: Setting logdir: ", logdir);
+       }
+
+       logdate = require('./util').getConfig().logdate;
+       if (typeof(logdate) === 'undefined') {
+           logdate = false;
+       } else {
+           console.log("LOG: Logging into dated directory.");
+       }
   },
   error: function() {
     this._write('error', arguments);
