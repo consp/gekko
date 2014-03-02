@@ -76,14 +76,12 @@ Log.prototype = {
     // string compare (might differ in node versions use >= 10), cheaper than synchronized io
     if (logstorage != olddir) {
         olddir = logstorage;
-        message += "\nLOG: Checking if log directory exists.";
         queue.push(function () {
                     
             // stat and create each recurring dir
             // need sync? probably ...
             if (! fs.existsSync(logstorage)) {
                 // doesn't exist, create
-                message += "\nCreate directory to log to: " + logstorage;
                 mkdirp.sync(logstorage);
             }
         }, function() {});
