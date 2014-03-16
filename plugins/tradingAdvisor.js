@@ -9,6 +9,7 @@ var methods = [
   'DEMA',
   'PPO',
   'RSI',
+  'CCI',
   'custom'
 ];
 
